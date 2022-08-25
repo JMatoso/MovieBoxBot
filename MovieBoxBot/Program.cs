@@ -1,0 +1,88 @@
+﻿
+using MovieBoxBot.Models;
+using MovieBoxBot.Utils;
+using Telegram.Bot;
+using Telegram.Bot.Exceptions;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+
+var botClient = new TelegramBotClient("5636817662:AAHyo1yzss4YmAo3t8KuZkO4D25BIB-MsrQ");
+
+using var cancellationToken = new CancellationTokenSource();
+
+var receiverOptions = new ReceiverOptions
+{
+    AllowedUpdates = Array.Empty<UpdateType>()
+};
+
+botClient.StartReceiving(
+    updateHandler: HandleUpdateAsync,
+    pollingErrorHandler: HandlePollingErrorAsync,
+    receiverOptions: receiverOptions,
+    cancellationToken: cancellationToken.Token
+);
+
+var me = await botClient.GetMeAsync();
+
+Console.WriteLine($"Start listening for @{me.Username}");
+Console.ReadLine();
+
+cancellationToken.Cancel();
+
+async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+{
+    // Only process Message updates: https://core.telegram.org/bots/api#message
+    if (update.Message is not { } message)
+        return;
+
+    // Only process text messages
+    if (message.Text is not { } messageText)
+        return;
+
+    var chatId = message.Chat.Id;
+
+    //Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
+
+    // Echo received message text
+
+    var command = messageText.Split(" ")[0];
+
+    var help = Actions.Help(chatId);
+    var start = Actions.Start(chatId, $"{message?.From?.FirstName} {message?.From?.LastName}");
+    var latest = Actions.ListLatest(chatId);
+
+    Message sentMessage = command switch
+    {
+        "/start" => await botClient.SendTextMessageAsync(start.ChatId, start.Text),
+        "/help" => await botClient.SendTextMessageAsync(help.ChatId, help.Text, help.ParseMode),
+        "/list" => await botClient.SendTextMessageAsync(help.ChatId, help.Text, help.ParseMode),
+        "/search" => await botClient.SendTextMessageAsync(help.ChatId, help.Text, help.ParseMode),
+        "/latest" => await ProcessMessages(latest.ToList()),
+
+        _ => throw new NotImplementedException()
+    };
+}
+
+async Task<Message> ProcessMessages(List<PhotoMessage> messages)
+{
+    foreach(var message in messages)
+    {
+        await botClient.SendPhotoAsync(message.ChatId, message.Photo, message.Caption, message.ParseMode);
+    }
+
+    return default!;
+}
+
+Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+{
+    var ErrorMessage = exception switch
+    {
+        ApiRequestException apiRequestException
+            => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+        _ => exception.ToString()
+    };
+
+    Console.WriteLine(ErrorMessage);
+    return Task.CompletedTask;
+}
