@@ -21,7 +21,6 @@ namespace MovieBoxBot.Utils.Client
         public async Task<T> GetAsync(string url)
         {
             var response = await _httpClient.GetAsync(url);
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
             return await response.ReadContentAs<T>();
         }
 

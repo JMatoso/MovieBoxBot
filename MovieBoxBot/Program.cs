@@ -7,7 +7,7 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-var botClient = new TelegramBotClient("5636817662:AAHyo1yzss4YmAo3t8KuZkO4D25BIB-MsrQ");
+var botClient = new TelegramBotClient("<TelegramToken>");
 
 using var cancellationToken = new CancellationTokenSource();
 
@@ -50,15 +50,14 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 
     var help = Actions.Help(chatId);
     var start = Actions.Start(chatId, $"{message?.From?.FirstName} {message?.From?.LastName}");
-    var latest = Actions.ListLatest(chatId);
+    var list = Actions.ListLatest(chatId);
 
     Message sentMessage = command switch
     {
         "/start" => await botClient.SendTextMessageAsync(start.ChatId, start.Text),
         "/help" => await botClient.SendTextMessageAsync(help.ChatId, help.Text, help.ParseMode),
-        "/list" => await botClient.SendTextMessageAsync(help.ChatId, help.Text, help.ParseMode),
         "/search" => await botClient.SendTextMessageAsync(help.ChatId, help.Text, help.ParseMode),
-        "/latest" => await ProcessMessages(latest.ToList()),
+        "/list" => await ProcessMessages(list.ToList()),
 
         _ => throw new NotImplementedException()
     };

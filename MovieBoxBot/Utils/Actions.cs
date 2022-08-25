@@ -13,7 +13,7 @@ namespace MovieBoxBot.Utils
         public static TextMessage Help(ChatId chatId) => new(chatId)
         {
             Text = "I am the <a href =\"http://www.moviebox.site\">MovieBox</a> website bot, I will help you to search, see the details and download torrents of the movies you want." +
-                Environment.NewLine + Environment.NewLine + "I was created by <a href =\"http://github.com/JMatoso/MovieBoxBot\">José Matoso</a>, in order to help <a href =\"http://www.moviebox.site\">MovieBox</a> users getting torrents easier.",
+                Environment.NewLine + Environment.NewLine + "I was created by <a href =\"http://github.com/JMatoso/MovieBoxBot\">José Matoso</a>, in order to help movie lovers getting torrents easier.",
             ParseMode = Telegram.Bot.Types.Enums.ParseMode.Html
         };
 
