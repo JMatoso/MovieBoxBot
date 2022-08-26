@@ -1,14 +1,13 @@
 ﻿using MovieBoxBot.Models;
 using MovieBoxBot.Utils.Client;
-using System.Text.Encodings.Web;
 using Telegram.Bot.Types;
 
 namespace MovieBoxBot.Utils
 {
     internal class Actions
     {
-        private static string baseUrl = "https://yts.mx/api/v2/";
-        private static readonly HttpClientService<Root> _httpClientService = new HttpClientService<Root>();
+        private static readonly string baseUrl = "https://yts.mx/api/v2/";
+        private static readonly HttpClientService<Root> _httpClientService = new();
 
         public static TextMessage Help(ChatId chatId) => new(chatId)
         {
@@ -26,46 +25,45 @@ namespace MovieBoxBot.Utils
         {
             var result = _httpClientService.GetAsync($"{baseUrl}list_movies.json?limit=4&page={page}").Result;
 
-            var model = new PhotoMessageModel()
+            var photoMessageModel = new PhotoMessageModel()
             {
                 Pages = (int)Math.Round(Convert.ToDecimal(result.Data.MovieCount / result.Data.Limit))
             };
 
-            foreach(var movie in result.Data.Movies)
+            result.Data.Movies.ForEach((movie) =>
             {
-                model.PhotoMessages.Add(new PhotoMessage(chatId)
+                photoMessageModel.PhotoMessages.Add(new PhotoMessage(chatId)
                 {
+                    MovieId = movie.Id.ToString(),
                     Photo = movie.MediumCoverImage,
-                    Caption = $"<b>{movie.TitleLong}</b>" + Environment.NewLine + GetStringCollection(movie.Genres)
-                        + Environment.NewLine + Environment.NewLine + 
-                        (movie.DescriptionFull.Length > 100 ? movie.DescriptionFull[..300] : movie.DescriptionFull) + "..." + 
-                        Environment.NewLine + Environment.NewLine + GetTorrents(movie.Torrents, movie.Id.ToString(), movie.Title)
+                    Caption = $"<b>{movie.TitleLong}</b>" +
+                        Environment.NewLine + GetStringCollection(movie.Genres) +
+                        Environment.NewLine + Environment.NewLine +
+                        (movie.DescriptionFull.Length > 250 ? movie.DescriptionFull[..250] : movie.DescriptionFull) + "..." +
+                        Environment.NewLine + Environment.NewLine + GetTorrents(movie.Torrents)
                 });
-            }
+            });
 
-            return model;
+            return photoMessageModel;
         }
 
-        private static string GetTorrents(List<Torrent> torrents, string movieId, string movieTitle)
+        private static string GetTorrents(List<Torrent> torrents)
         {
             var list = string.Empty;
 
-            foreach(var torrent in torrents)
+            torrents.ForEach((torrent) =>
             {
-                list += $"<a href=\"{torrent.Url}\">{torrent.Quality} - {torrent.Size}</a>" + Environment.NewLine;
-            }
+                list += $"<a href=\"{torrent.Url}\">{torrent.Type} - {torrent.Quality} - {torrent.Size}</a>" + Environment.NewLine;
+            });
 
             return list;
         }
 
-        private static string GetStringCollection(List<string> list)
+        public static string GetStringCollection(List<string> list)
         {
             var newValue = string.Empty;
 
-            foreach(var text in list)
-            {
-                newValue += text + "  ";
-            }
+            list.ForEach((text) => { newValue += text + "  "; });
 
             return newValue;
         }
