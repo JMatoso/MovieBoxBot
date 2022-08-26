@@ -1,3 +1,3 @@
-# MovieBox Bot
+# MovieBoxBot
 
 Will be updated sooooon :)
