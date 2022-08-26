@@ -40,7 +40,23 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 
     var chatId = message.Chat.Id;
 
-    var command = messageText.Split(" ")[0];
+    var messageContent = messageText.Split(" ");
+    var command = messageContent[0];
+
+    if (messageContent.Length > 1 && command.Equals("/search"))
+    {
+        var content = messageContent.ToList();
+
+        content.RemoveAt(0);
+
+        var queryTerm = content.Count > 1 ? string.Join(" ", content) : content[0];
+
+        var searches = Actions.List(chatId, 1, queryTerm);
+
+        await ProcessMessages(searches, chatId, cancellationToken);
+
+        return;
+    }
 
     var help = Actions.Help(chatId);
     var list = Actions.List(chatId);
@@ -50,30 +66,30 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     {
         "/start" => await botClient.SendTextMessageAsync(start.ChatId, start.Text, cancellationToken: cancellationToken),
         "/help" => await botClient.SendTextMessageAsync(help.ChatId, help.Text, help.ParseMode, cancellationToken: cancellationToken),
-        "/search" => await botClient.SendTextMessageAsync(help.ChatId, help.Text, help.ParseMode, cancellationToken: cancellationToken),
         "/list" => await ProcessMessages(list, chatId, cancellationToken),
 
-        _ => default!
+        _ => await botClient.SendTextMessageAsync(start.ChatId, "What do you mean?", cancellationToken: cancellationToken)
     };
 }
 
 async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, CancellationToken cancellationToken)
 {
+    _ = await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: model.Message,
+            cancellationToken: cancellationToken
+    );
+
     foreach (var message in model.PhotoMessages)
     {
         var inlineKeyboard = new InlineKeyboardMarkup(
             InlineKeyboardButton.WithUrl(text: "See on MovieBox", url: $"https://moviebox.site/movie?mid={message.MovieId}"));
 
-        await botClient.SendPhotoAsync(
+        _ = await botClient.SendPhotoAsync(
             chatId: message.ChatId,
             photo: message.Photo,
             caption: message.Caption,
             parseMode: ParseMode.Html,
-            captionEntities: null,
-            disableNotification: false,
-            protectContent: null,
-            replyToMessageId: null,
-            allowSendingWithoutReply: null,
             replyMarkup: inlineKeyboard,
             cancellationToken: cancellationToken
         );
@@ -84,13 +100,12 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, Canc
         var inlineKeyboard = new InlineKeyboardMarkup(
             InlineKeyboardButton.WithCallbackData(text: "Next Page", callbackData: "page=2"));
 
-        Message message = await botClient.SendTextMessageAsync(
+        _ = await botClient.SendTextMessageAsync(
             chatId: chatId,
             text: "See more",
-                parseMode: ParseMode.MarkdownV2,
-            disableNotification: true,
-            replyToMessageId: null,
-            replyMarkup: inlineKeyboard
+            parseMode: ParseMode.MarkdownV2,
+            replyMarkup: inlineKeyboard,
+            cancellationToken: cancellationToken
         );
     }
 
