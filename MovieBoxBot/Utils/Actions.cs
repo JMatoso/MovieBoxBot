@@ -22,20 +22,27 @@ namespace MovieBoxBot.Utils
             Text = $"Let's get started, {name}! Tell me what you want to do."
         };
 
-        public static IEnumerable<PhotoMessage> ListLatest(ChatId chatId)
+        public static PhotoMessageModel List(ChatId chatId, int page = 1)
         {
-            var result = _httpClientService.GetAsync($"{baseUrl}list_movies.json?limit=4").Result;
+            var result = _httpClientService.GetAsync($"{baseUrl}list_movies.json?limit=4&page={page}").Result;
+
+            var model = new PhotoMessageModel()
+            {
+                Pages = (int)Math.Round(Convert.ToDecimal(result.Data.MovieCount / result.Data.Limit))
+            };
 
             foreach(var movie in result.Data.Movies)
             {
-                yield return new PhotoMessage(chatId)
+                model.PhotoMessages.Add(new PhotoMessage(chatId)
                 {
                     Photo = movie.MediumCoverImage,
                     Caption = $"<b>{movie.TitleLong}</b>" + Environment.NewLine + GetStringCollection(movie.Genres)
                         + Environment.NewLine + Environment.NewLine + movie.DescriptionFull + Environment.NewLine
                         + Environment.NewLine + GetTorrents(movie.Torrents, movie.Id.ToString(), movie.Title)
-                };
+                });
             }
+
+            return model;
         }
 
         private static string GetTorrents(List<Torrent> torrents, string movieId, string movieTitle)
