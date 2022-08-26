@@ -6,6 +6,7 @@ namespace MovieBoxBot.Models
     {
         public int Pages { get; set; }
         public string Message { get; set; }
+        public int MoviesCount { get; set; }
         public List<PhotoMessage> PhotoMessages { get; set; }
 
         public PhotoMessageModel()

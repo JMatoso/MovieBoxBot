@@ -8,16 +8,14 @@ namespace MovieBoxBot.Models
 {
     internal class TextMessage
     {
-        public ChatId ChatId { get; set; }
         public string Text { get; set; }
         public ParseMode ParseMode { get; set; }
         public bool DisableNotifications { get; set; }
         public MessageId ReplyToMessageId { get; set; }
         public InlineKeyboardMarkup ReplyMarkup { get; set; }
 
-        public TextMessage(ChatId chatId)
+        public TextMessage()
         {
-            ChatId = chatId;
             DisableNotifications = false;
         }
     }

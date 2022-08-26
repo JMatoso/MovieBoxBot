@@ -51,24 +51,24 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 
         var queryTerm = content.Count > 1 ? string.Join(" ", content) : content[0];
 
-        var searches = Actions.List(chatId, 1, queryTerm);
+        var searches = Actions.List(1, queryTerm);
 
-        await ProcessMessages(searches, chatId, cancellationToken);
+        _ = await ProcessMessages(searches, chatId, cancellationToken);
 
         return;
     }
 
-    var help = Actions.Help(chatId);
-    var list = Actions.List(chatId);
-    var start = Actions.Start(chatId, $"{message?.From?.FirstName} {message?.From?.LastName}");
+    var help = Actions.Help();
+    var list = Actions.List();
+    var start = Actions.Start($"{message?.From?.FirstName} {message?.From?.LastName}");
 
     _ = command switch
     {
-        "/start" => await botClient.SendTextMessageAsync(start.ChatId, start.Text, cancellationToken: cancellationToken),
-        "/help" => await botClient.SendTextMessageAsync(help.ChatId, help.Text, help.ParseMode, cancellationToken: cancellationToken),
+        "/start" => await botClient.SendTextMessageAsync(chatId, start.Text, cancellationToken: cancellationToken),
+        "/help" => await botClient.SendTextMessageAsync(chatId, help.Text, help.ParseMode, cancellationToken: cancellationToken),
         "/list" => await ProcessMessages(list, chatId, cancellationToken),
 
-        _ => await botClient.SendTextMessageAsync(start.ChatId, "What do you mean?", cancellationToken: cancellationToken)
+        _ => await botClient.SendTextMessageAsync(chatId, "What do you mean? I didn't get it.", cancellationToken: cancellationToken)
     };
 }
 
@@ -86,7 +86,7 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, Canc
             InlineKeyboardButton.WithUrl(text: "See on MovieBox", url: $"https://moviebox.site/movie?mid={message.MovieId}"));
 
         _ = await botClient.SendPhotoAsync(
-            chatId: message.ChatId,
+            chatId: chatId,
             photo: message.Photo,
             caption: message.Caption,
             parseMode: ParseMode.Html,
@@ -95,7 +95,7 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, Canc
         );
     }
 
-    if (model.Pages > 1)
+    if (model.Pages > 1 && model.MoviesCount > 4)
     {
         var inlineKeyboard = new InlineKeyboardMarkup(
             InlineKeyboardButton.WithCallbackData(text: "Next Page", callbackData: "page=2"));

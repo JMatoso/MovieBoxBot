@@ -9,14 +9,12 @@ namespace MovieBoxBot.Models
     internal class PhotoMessage
     {
         public string MovieId { get; set;  }
-        public ChatId ChatId { get; set; }
         public InputOnlineFile Photo { get; set; }
         public string Caption { get; set; }
         public ParseMode ParseMode { get; set; }
 
-        public PhotoMessage(ChatId chatId)
+        public PhotoMessage()
         {
-            ChatId = chatId;
             ParseMode = ParseMode.Html;
         }
     }
