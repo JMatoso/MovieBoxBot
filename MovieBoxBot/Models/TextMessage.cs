@@ -20,12 +20,5 @@ namespace MovieBoxBot.Models
             ChatId = chatId;
             DisableNotifications = false;
         }
-
-        public TextMessage(ChatId chatId, string text)
-        {
-            ChatId = chatId;
-            Text = text;
-            DisableNotifications = false;
-        }
     }
 }

@@ -6,7 +6,7 @@ namespace MovieBoxBot.Utils
 {
     internal class Actions
     {
-        private static readonly string baseUrl = "https://yts.mx/api/v2/";
+        private static readonly string baseUrl = "https://yts.mx/api/v2/list_movies.json?limit=4&page={0}&query_term={1}";
         private static readonly HttpClientService<Root> _httpClientService = new();
 
         public static TextMessage Help(ChatId chatId) => new(chatId)
@@ -21,9 +21,9 @@ namespace MovieBoxBot.Utils
             Text = $"Let's get started, {name}! Tell me what you want to do."
         };
 
-        public static PhotoMessageModel List(ChatId chatId, int page = 1)
+        public static PhotoMessageModel List(ChatId chatId, int page = 1, string queryTerm = "")
         {
-            var result = _httpClientService.GetAsync($"{baseUrl}list_movies.json?limit=4&page={page}").Result;
+            var result = _httpClientService.GetAsync(string.Format(baseUrl, page, queryTerm)).Result;
 
             var photoMessageModel = new PhotoMessageModel()
             {

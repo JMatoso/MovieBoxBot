@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 
 namespace MovieBoxBot.Models
 {
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class Data
     {
         [JsonProperty("movie_count")]

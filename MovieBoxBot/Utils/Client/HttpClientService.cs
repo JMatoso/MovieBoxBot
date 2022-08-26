@@ -6,7 +6,7 @@ namespace MovieBoxBot.Utils.Client
     {
         private readonly HttpClient _httpClient;
 
-        public HttpClientService()
+        public HttpClientService() 
         {
             _httpClient = new HttpClient();
         }
@@ -22,11 +22,6 @@ namespace MovieBoxBot.Utils.Client
         {
             var response = await _httpClient.GetAsync(url);
             return await response.ReadContentAs<T>();
-        }
-
-        public async Task<HttpResponseMessage> SendAsync(string url)
-        {
-            return await _httpClient.GetAsync(url);
         }
     }
 }
