@@ -1,6 +1,5 @@
 ﻿using MovieBoxBot.Models;
 using MovieBoxBot.Utils.Client;
-using Telegram.Bot.Types;
 
 namespace MovieBoxBot.Utils
 {
@@ -32,7 +31,7 @@ namespace MovieBoxBot.Utils
                 Pages = (int)Math.Ceiling(Convert.ToDecimal(result.Data.MovieCount / result.Data.Limit))
             };
 
-            if(result.Data.Movies is not null)
+            if (result.Data.Movies is not null)
             {
                 result.Data.Movies.ForEach((movie) =>
                 {

@@ -94,7 +94,7 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, Canc
             cancellationToken: cancellationToken
         );
     }
-    4
+    
     if (model.Pages > 1 && model.MoviesCount > 4)
     {
         var inlineKeyboard = new InlineKeyboardMarkup(

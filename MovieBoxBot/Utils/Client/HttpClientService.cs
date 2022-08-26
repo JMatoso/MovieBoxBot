@@ -6,7 +6,7 @@ namespace MovieBoxBot.Utils.Client
     {
         private readonly HttpClient _httpClient;
 
-        public HttpClientService() 
+        public HttpClientService()
         {
             _httpClient = new HttpClient();
         }
