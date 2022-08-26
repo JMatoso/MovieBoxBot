@@ -37,8 +37,9 @@ namespace MovieBoxBot.Utils
                 {
                     Photo = movie.MediumCoverImage,
                     Caption = $"<b>{movie.TitleLong}</b>" + Environment.NewLine + GetStringCollection(movie.Genres)
-                        + Environment.NewLine + Environment.NewLine + movie.DescriptionFull + Environment.NewLine
-                        + Environment.NewLine + GetTorrents(movie.Torrents, movie.Id.ToString(), movie.Title)
+                        + Environment.NewLine + Environment.NewLine + 
+                        (movie.DescriptionFull.Length > 100 ? movie.DescriptionFull[..300] : movie.DescriptionFull) + "..." + 
+                        Environment.NewLine + Environment.NewLine + GetTorrents(movie.Torrents, movie.Id.ToString(), movie.Title)
                 });
             }
 

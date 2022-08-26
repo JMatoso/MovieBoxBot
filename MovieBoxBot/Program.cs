@@ -74,11 +74,11 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId)
     {
         Message message = await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Next page",
+            text: "",
                 parseMode: ParseMode.MarkdownV2,
             disableNotification: true,
             replyToMessageId: null,
-            replyMarkup: new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("I got it.", "2")));
+            replyMarkup: new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Next Page", "2")));
     }
 
     return default!;
