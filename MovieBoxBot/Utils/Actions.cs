@@ -6,8 +6,8 @@ namespace MovieBoxBot.Utils
 {
     internal class Actions
     {
-        private static readonly string _baseUrl = "https://yts.mx/api/v2/list_movies.json?limit=4&page={0}&query_term={1}";
         private static readonly HttpClientService<Root> _httpClientService = new();
+        private static readonly string _baseUrl = "https://yts.mx/api/v2/list_movies.json?limit=4&page={0}&query_term={1}";
 
         public static TextMessage Help() => new()
         {

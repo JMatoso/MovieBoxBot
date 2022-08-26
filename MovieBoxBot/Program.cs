@@ -9,7 +9,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 using var cancellationToken = new CancellationTokenSource();
 
-var botClient = new TelegramBotClient("");
+var botClient = new TelegramBotClient("<Telegram Token>");
 
 var receiverOptions = new ReceiverOptions
 {
@@ -89,12 +89,12 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, Canc
             chatId: chatId,
             photo: message.Photo,
             caption: message.Caption,
-            parseMode: ParseMode.Html,
+            parseMode: message.ParseMode,
             replyMarkup: inlineKeyboard,
             cancellationToken: cancellationToken
         );
     }
-
+    4
     if (model.Pages > 1 && model.MoviesCount > 4)
     {
         var inlineKeyboard = new InlineKeyboardMarkup(
@@ -114,13 +114,13 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, Canc
 
 Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
 {
-    var ErrorMessage = exception switch
+    var errorMessage = exception switch
     {
         ApiRequestException apiRequestException
             => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
         _ => exception.ToString()
     };
 
-    Console.WriteLine(ErrorMessage);
+    Console.WriteLine(errorMessage);
     return Task.CompletedTask;
 }
