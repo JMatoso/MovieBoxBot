@@ -11,7 +11,7 @@ using var cancellationToken = new CancellationTokenSource();
 
 Console.WriteLine("Starting bot...");
 
-var botClient = new TelegramBotClient("5636817662:AAHY2-Agal672i1RjCqElHKVN7Xi3OD6mVg");
+var botClient = new TelegramBotClient("");
 
 var receiverOptions = new ReceiverOptions
 {
@@ -40,8 +40,6 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     if (message.Text is not { } messageText)
         return;
 
-    Console.WriteLine($"{message.Chat.FirstName} {message.Chat.LastName} sent: {messageText} at {DateTime.Now.ToLongTimeString()}");
-
     var help = Actions.Help();
     var list = Actions.List();
     var start = Actions.Start($"{message?.From?.FirstName} {message?.From?.LastName}");
@@ -56,7 +54,8 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
             "/help" => await botClient.SendTextMessageAsync(chatId, help.Text, help.ParseMode, replyToMessageId: message!.MessageId, cancellationToken: cancellationToken),
             "/list" => await ProcessMessages(list, chatId, cancellationToken),
             "/search" => await SearchMovie(messageText, chatId, message.MessageId, cancellationToken),
-
+            "/previous" => await GetMore(true, messageText, chatId, message.MessageId, cancellationToken),
+            "/next" => await GetMore(false, messageText, chatId, message.MessageId, cancellationToken),
             _ => await botClient.SendTextMessageAsync(chatId, "I guess it's not a command I know.", replyToMessageId: message!.MessageId, cancellationToken: cancellationToken)
         };
 
@@ -108,18 +107,15 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, Canc
     {
         ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
         {
-            new KeyboardButton[] { "Help me", "Call me ☎️" },
+            new KeyboardButton[] { "Previous", "Next" },
         })
         {
             ResizeKeyboard = true
         };
 
-        /*var inlineKeyboard = new InlineKeyboardMarkup(
-            InlineKeyboardButton.WithCallbackData(text: "Next Page", callbackData: "page=2"));*/
-
         _ = await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "See more",
+            text: "There are more movies.",
             parseMode: ParseMode.MarkdownV2,
             replyMarkup: replyKeyboardMarkup,
             cancellationToken: cancellationToken
@@ -127,6 +123,12 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, Canc
     }
 
     return default!;
+}
+
+async Task<Message> GetMore(bool more, string message, ChatId chatId, int messageId, CancellationToken cancellationToken)
+{
+    Console.WriteLine(more);
+    return default;
 }
 
 Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
