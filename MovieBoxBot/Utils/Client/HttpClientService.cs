@@ -1,27 +1,26 @@
 ﻿#nullable disable
 
-namespace MovieBoxBot.Utils.Client
+namespace MovieBoxBot.Utils.Client;
+
+public class HttpClientService<T> where T : class
 {
-    public class HttpClientService<T> where T : class
+    private readonly HttpClient _httpClient;
+
+    public HttpClientService()
     {
-        private readonly HttpClient _httpClient;
+        _httpClient = new HttpClient();
+    }
 
-        public HttpClientService()
-        {
-            _httpClient = new HttpClient();
-        }
+    public async Task<IEnumerable<T>> GetListAsync(string url)
+    {
+        var response = await _httpClient.GetAsync(url);
 
-        public async Task<IEnumerable<T>> GetListAsync(string url)
-        {
-            var response = await _httpClient.GetAsync(url);
+        return await response.ReadContentAs<IEnumerable<T>>(); ;
+    }
 
-            return await response.ReadContentAs<IEnumerable<T>>(); ;
-        }
-
-        public async Task<T> GetAsync(string url)
-        {
-            var response = await _httpClient.GetAsync(url);
-            return await response.ReadContentAs<T>();
-        }
+    public async Task<T> GetAsync(string url)
+    {
+        var response = await _httpClient.GetAsync(url);
+        return await response.ReadContentAs<T>();
     }
 }

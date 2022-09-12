@@ -1,19 +1,18 @@
 ﻿using Newtonsoft.Json;
 
-namespace MovieBoxBot.Utils.Client
+namespace MovieBoxBot.Utils.Client;
+
+public static class HttpClientExtension
 {
-    public static class HttpClientExtension
+    public static async Task<T?> ReadContentAs<T>(this HttpResponseMessage response)
     {
-        public static async Task<T?> ReadContentAs<T>(this HttpResponseMessage response)
+        if (!response.IsSuccessStatusCode)
         {
-            if (!response.IsSuccessStatusCode)
-            {
-                return default;
-            }
-
-            var dataAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-            return JsonConvert.DeserializeObject<T>(dataAsString);
+            return default;
         }
+
+        var dataAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+        return JsonConvert.DeserializeObject<T>(dataAsString);
     }
 }

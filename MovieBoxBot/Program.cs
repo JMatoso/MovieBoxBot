@@ -9,7 +9,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 using var cancellationToken = new CancellationTokenSource();
 
-var botClient = new TelegramBotClient("<Telegram Token>");
+var botClient = new TelegramBotClient("");
 
 var receiverOptions = new ReceiverOptions
 {
@@ -38,10 +38,7 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     if (message.Text is not { } messageText)
         return;
 
-    var chatId = message.Chat.Id;
-
-    var messageContent = messageText.Split(" ");
-    var command = messageContent[0];
+    /*var messageContent = messageText.Split(" ");
 
     if (messageContent.Length > 1 && command.Equals("/search"))
     {
@@ -56,20 +53,25 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
         _ = await ProcessMessages(searches, chatId, cancellationToken);
 
         return;
-    }
+    }*/
 
     var help = Actions.Help();
     var list = Actions.List();
     var start = Actions.Start($"{message?.From?.FirstName} {message?.From?.LastName}");
 
-    _ = command switch
-    {
-        "/start" => await botClient.SendTextMessageAsync(chatId, start.Text, cancellationToken: cancellationToken),
-        "/help" => await botClient.SendTextMessageAsync(chatId, help.Text, help.ParseMode, cancellationToken: cancellationToken),
-        "/list" => await ProcessMessages(list, chatId, cancellationToken),
+    var chatId = message!.Chat.Id;
 
-        _ => await botClient.SendTextMessageAsync(chatId, "What do you mean? I didn't get it.", cancellationToken: cancellationToken)
-    };
+    if (message.EntityValues is not null)
+    {
+        _ = message.EntityValues.First() switch
+        {
+            "/start" => await botClient.SendTextMessageAsync(chatId, start.Text, replyToMessageId: message!.MessageId, cancellationToken: cancellationToken),
+            "/help" => await botClient.SendTextMessageAsync(chatId, help.Text, help.ParseMode, replyToMessageId: message!.MessageId, cancellationToken: cancellationToken),
+            "/list" => await ProcessMessages(list, chatId, cancellationToken),
+
+            _ => await botClient.SendTextMessageAsync(chatId, "What do you mean? I didn't get it.", replyToMessageId: message!.MessageId, cancellationToken: cancellationToken)
+        };
+    }
 }
 
 async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, CancellationToken cancellationToken)
