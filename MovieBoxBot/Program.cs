@@ -9,7 +9,9 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 using var cancellationToken = new CancellationTokenSource();
 
-var botClient = new TelegramBotClient("");
+Console.WriteLine("Starting bot...");
+
+var botClient = new TelegramBotClient("5636817662:AAHY2-Agal672i1RjCqElHKVN7Xi3OD6mVg");
 
 var receiverOptions = new ReceiverOptions
 {
@@ -25,7 +27,7 @@ botClient.StartReceiving(
 
 var me = await botClient.GetMeAsync();
 
-Console.WriteLine($"Start listening for @{me.Username}");
+Console.WriteLine($"Listening for @{me.Username}");
 Console.ReadLine();
 
 cancellationToken.Cancel();
@@ -38,22 +40,7 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     if (message.Text is not { } messageText)
         return;
 
-    /*var messageContent = messageText.Split(" ");
-
-    if (messageContent.Length > 1 && command.Equals("/search"))
-    {
-        var content = messageContent.ToList();
-
-        content.RemoveAt(0);
-
-        var queryTerm = content.Count > 1 ? string.Join(" ", content) : content[0];
-
-        var searches = Actions.List(1, queryTerm);
-
-        _ = await ProcessMessages(searches, chatId, cancellationToken);
-
-        return;
-    }*/
+    Console.WriteLine($"{message.Chat.FirstName} {message.Chat.LastName} sent: {messageText} at {DateTime.Now.ToLongTimeString()}");
 
     var help = Actions.Help();
     var list = Actions.List();
@@ -68,10 +55,30 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
             "/start" => await botClient.SendTextMessageAsync(chatId, start.Text, replyToMessageId: message!.MessageId, cancellationToken: cancellationToken),
             "/help" => await botClient.SendTextMessageAsync(chatId, help.Text, help.ParseMode, replyToMessageId: message!.MessageId, cancellationToken: cancellationToken),
             "/list" => await ProcessMessages(list, chatId, cancellationToken),
+            "/search" => await SearchMovie(messageText, chatId, message.MessageId, cancellationToken),
 
-            _ => await botClient.SendTextMessageAsync(chatId, "What do you mean? I didn't get it.", replyToMessageId: message!.MessageId, cancellationToken: cancellationToken)
+            _ => await botClient.SendTextMessageAsync(chatId, "I guess it's not a command I know.", replyToMessageId: message!.MessageId, cancellationToken: cancellationToken)
         };
+
+        return;
     }
+
+    await botClient.SendTextMessageAsync(chatId, "What do you mean? I didn't get it.", replyToMessageId: message!.MessageId, cancellationToken: cancellationToken);
+}
+
+async Task<Message> SearchMovie(string messageText, ChatId chatId, int messageId, CancellationToken cancellationToken)
+{
+    var keyword = messageText.Replace("/search", string.Empty);
+
+    if(string.IsNullOrEmpty(keyword))
+    {
+        await botClient.SendTextMessageAsync(chatId, "Give me a title.\n\n Try: /search <b>movie name</b>.", parseMode: ParseMode.Html, replyToMessageId: messageId, cancellationToken: cancellationToken);
+        return default!;
+    }
+
+    var result = Actions.List(1, keyword);
+
+    return await ProcessMessages(result, chatId, cancellationToken);
 }
 
 async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, CancellationToken cancellationToken)
@@ -89,7 +96,7 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, Canc
 
         _ = await botClient.SendPhotoAsync(
             chatId: chatId,
-            photo: message.Photo,
+            photo: message.Photo!,
             caption: message.Caption,
             parseMode: message.ParseMode,
             replyMarkup: inlineKeyboard,
@@ -99,14 +106,22 @@ async Task<Message> ProcessMessages(PhotoMessageModel model, ChatId chatId, Canc
     
     if (model.Pages > 1 && model.MoviesCount > 4)
     {
-        var inlineKeyboard = new InlineKeyboardMarkup(
-            InlineKeyboardButton.WithCallbackData(text: "Next Page", callbackData: "page=2"));
+        ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+        {
+            new KeyboardButton[] { "Help me", "Call me ☎️" },
+        })
+        {
+            ResizeKeyboard = true
+        };
+
+        /*var inlineKeyboard = new InlineKeyboardMarkup(
+            InlineKeyboardButton.WithCallbackData(text: "Next Page", callbackData: "page=2"));*/
 
         _ = await botClient.SendTextMessageAsync(
             chatId: chatId,
             text: "See more",
             parseMode: ParseMode.MarkdownV2,
-            replyMarkup: inlineKeyboard,
+            replyMarkup: replyKeyboardMarkup,
             cancellationToken: cancellationToken
         );
     }

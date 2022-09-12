@@ -17,7 +17,7 @@ internal class Actions
 
     public static TextMessage Start(string name) => new()
     {
-        Text = $"Let's get started, {name}! Tell me, what you want to do?"
+        Text = $"Let's get started, {name}! Tell me what you want to do typing one of the commands I know."
     };
 
     public static PhotoMessageModel List(int page = 1, string queryTerm = "")
@@ -63,7 +63,7 @@ internal class Actions
         return list;
     }
 
-    public static string GetStringCollection(List<string> list)
+    private static string GetStringCollection(List<string> list)
     {
         var newValue = string.Empty;
 
