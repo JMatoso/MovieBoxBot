@@ -86,9 +86,13 @@ internal static class BotDataManagement
             return;
         }
 
+        var message = string.IsNullOrEmpty(UserActivity.SearchKeyword) ?
+            "You didn't search anything." :
+            $"There aren't more results for <b>{UserActivity.SearchKeyword}</b>.";
+
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: $"There aren't more results for <b>{UserActivity.SearchKeyword}</b>.",
+            text: message,
             parseMode: ParseMode.Html,
             replyToMessageId: messageId,
             cancellationToken: cancellationToken
