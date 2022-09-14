@@ -1,5 +1,7 @@
 ﻿using MovieBoxBot.Models;
 using MovieBoxBot.Utils.Client;
+using MovieBoxBot.Entities.Externals;
+using MovieBoxBot.Data;
 
 namespace MovieBoxBot.Utils;
 
@@ -20,16 +22,19 @@ internal class Actions
         Text = $"Let's get started, {name}! Tell me what you want to do typing one of the commands I know."
     };
 
-    public static PhotoMessageModel List(int page = 1, string queryTerm = "")
+    public static PhotoMessageModel List(int page, string queryTerm = "")
     {
-        var result = _httpClientService.GetAsync(string.Format(_baseUrl, page, queryTerm)).Result;
+        var result = _httpClientService.GetAsync(string.Format(_baseUrl, page, queryTerm.Trim())).Result;
 
         var photoMessageModel = new PhotoMessageModel()
         {
             MoviesCount = result.Data.MovieCount,
-            Message = $"I've got {result.Data.MovieCount} movie(s) for you.",
+            Message = $"I've got {result.Data.MovieCount} movie(s) for you.\nPage: {page}",
             Pages = (int)Math.Ceiling(Convert.ToDecimal(result.Data.MovieCount / result.Data.Limit))
         };
+
+        UserActivity.ActualPage = page;
+        UserActivity.SearchKeyword = queryTerm.Trim();
 
         if (result.Data.Movies is not null)
         {
