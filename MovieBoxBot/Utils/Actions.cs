@@ -13,7 +13,7 @@ internal class Actions
     public static TextMessage Help() => new()
     {
         Text = "I am the <a href =\"http://www.moviebox.site\">MovieBox</a> website bot, I will help you to search, see the details and download torrents of the movies you want." +
-            Environment.NewLine + Environment.NewLine + "I was created by <a href =\"http://github.com/JMatoso/MovieBoxBot\">José Matoso</a>, in order to help movie lovers getting torrents easier.",
+            Environment.NewLine + Environment.NewLine + "I was created by José Matoso, in order to help movie lovers getting torrents easier.",
         ParseMode = Telegram.Bot.Types.Enums.ParseMode.Html
     };
 
