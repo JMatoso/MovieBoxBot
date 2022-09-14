@@ -9,24 +9,29 @@ namespace MovieBoxBot.Utils;
 
 internal static class BotDataManagement
 {
-    public static async Task<Message> SearchMovie(ITelegramBotClient botClient, string messageText, ChatId chatId, int messageId, CancellationToken cancellationToken)
+    public static async Task SearchMovie(ITelegramBotClient botClient, string messageText, ChatId chatId, int messageId, CancellationToken cancellationToken)
     {
         var keyword = messageText.Replace("/search", string.Empty);
 
         if (string.IsNullOrEmpty(keyword))
         {
-            await botClient.SendTextMessageAsync(chatId, "Give me a title.\n\n Try: /search <b>movie name</b>.", parseMode: ParseMode.Html, replyToMessageId: messageId, cancellationToken: cancellationToken);
-            return default!;
+            await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: "Give me a title.\n\n Try: /search <b>movie name</b>.", 
+                parseMode: ParseMode.Html, 
+                replyToMessageId: messageId, 
+                cancellationToken: cancellationToken);
+
+            return;
         }
 
         var result = Actions.List(1, keyword);
-
-        return await ProcessMessages(botClient, result, chatId, cancellationToken);
+        await ProcessMessages(botClient, result, chatId, cancellationToken);
     }
 
-    public static async Task<Message> ProcessMessages(ITelegramBotClient botClient, PhotoMessageModel model, ChatId chatId, CancellationToken cancellationToken)
+    public static async Task ProcessMessages(ITelegramBotClient botClient, PhotoMessageModel model, ChatId chatId, CancellationToken cancellationToken)
     {
-        _ = await botClient.SendTextMessageAsync(
+        await botClient.SendTextMessageAsync(
                 chatId: chatId,
                 text: model.Message,
                 cancellationToken: cancellationToken
@@ -37,7 +42,7 @@ internal static class BotDataManagement
             var inlineKeyboard = new InlineKeyboardMarkup(
                 InlineKeyboardButton.WithUrl(text: "See on MovieBox", url: $"https://moviebox.site/movie?mid={message.MovieId}"));
 
-            _ = await botClient.SendPhotoAsync(
+            await botClient.SendPhotoAsync(
                 chatId: chatId,
                 photo: message.Photo!,
                 caption: message.Caption,
@@ -51,34 +56,37 @@ internal static class BotDataManagement
         {
             UserActivity.HasNext = true;
 
-            return await botClient.SendTextMessageAsync(
+            await botClient.SendTextMessageAsync(
                 chatId: chatId,
                 text: "See more in the /next page.",
                 parseMode: ParseMode.Html,
                 cancellationToken: cancellationToken
             );
+
+            return;
         }
 
         UserActivity.HasNext = false;
 
-        return await botClient.SendTextMessageAsync(
+        await botClient.SendTextMessageAsync(
             chatId: chatId,
             text: "That's all.",
             cancellationToken: cancellationToken
         );
     }
 
-    public static async Task<Message> GetMore(ITelegramBotClient botClient, ChatId chatId, int messageId, CancellationToken cancellationToken)
+    public static async Task GetMore(ITelegramBotClient botClient, ChatId chatId, int messageId, CancellationToken cancellationToken)
     {
         if(UserActivity.HasNext)
         {
             UserActivity.ActualPage++;
 
             var movieList = Actions.List(UserActivity.ActualPage, UserActivity.SearchKeyword);
-            return await ProcessMessages(botClient, movieList, chatId, cancellationToken);
+            await ProcessMessages(botClient, movieList, chatId, cancellationToken);
+            return;
         }
 
-        return await botClient.SendTextMessageAsync(
+        await botClient.SendTextMessageAsync(
             chatId: chatId,
             text: $"There aren't more results for <b>{UserActivity.SearchKeyword}</b>.",
             parseMode: ParseMode.Html,
