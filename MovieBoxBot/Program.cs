@@ -27,7 +27,7 @@ botClient.StartReceiving(
 var me = await botClient.GetMeAsync();
 
 Console.WriteLine($"Listening for @{me.Username}");
-Console.ReadLine();
+await Task.Delay(-1);
 
 cancellationToken.Cancel();
 
