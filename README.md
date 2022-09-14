@@ -9,9 +9,4 @@
 </ul>
 
 <h3>How to run</h3>
-<ol>
-    <li>Restore all packages</li>
-    <li>Change the ConnectionString in <i>appsettings.json</i></li>
-    <li>Apply migrations <code>Add-Migration {migration name}</code></li>
-    <li>Apply migrations changes <code>Update-Database</code></li>
-</ol>
+Restore packages <code>dotnet restore</code>
