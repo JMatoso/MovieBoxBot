@@ -1,6 +1,6 @@
 # MovieBoxBot
 
-<a href="https://moviebox.site">MovieBox</a> bot website to download movie torrents.
+<a href="https://moviebox.site">MovieBox</a> website bot to download movie torrents in Telegram.
 
 <h3>Tools</h3>
 <ul>
