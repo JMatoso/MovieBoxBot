@@ -1,7 +1,7 @@
-﻿using MovieBoxBot.Models;
-using MovieBoxBot.Utils.Client;
+﻿using MovieBoxBot.Data;
 using MovieBoxBot.Entities.Externals;
-using MovieBoxBot.Data;
+using MovieBoxBot.Models;
+using MovieBoxBot.Utils.Client;
 
 namespace MovieBoxBot.Utils;
 

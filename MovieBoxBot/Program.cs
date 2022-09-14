@@ -1,6 +1,5 @@
 ﻿using MovieBoxBot.Data;
 using MovieBoxBot.Utils;
-using System.Diagnostics;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
