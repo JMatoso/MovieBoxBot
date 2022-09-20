@@ -10,7 +10,7 @@ using var cancellationToken = new CancellationTokenSource();
 
 Console.WriteLine("Starting bot...");
 
-var botClient = new TelegramBotClient("5636817662:AAE7nkKFI5HvqJYE_XXhkJFR58hrmAnnS6k");
+var botClient = new TelegramBotClient("5636817662:AAFOuTIVS_lW9CpzvtKBQ3uHu0T8EaQn6nQ");
 
 var receiverOptions = new ReceiverOptions
 {
@@ -27,7 +27,7 @@ botClient.StartReceiving(
 var me = await botClient.GetMeAsync();
 
 Console.WriteLine($"Listening for @{me.Username}");
-await Task.Delay(-1);
+Console.ReadLine();
 
 cancellationToken.Cancel();
 
