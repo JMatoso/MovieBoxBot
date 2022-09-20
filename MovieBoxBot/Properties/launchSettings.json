@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MovieBoxBot": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
