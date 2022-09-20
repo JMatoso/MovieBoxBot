@@ -10,7 +10,7 @@ using var cancellationToken = new CancellationTokenSource();
 
 Console.WriteLine("Starting bot...");
 
-var botClient = new TelegramBotClient("5636817662:AAFOuTIVS_lW9CpzvtKBQ3uHu0T8EaQn6nQ");
+var botClient = new TelegramBotClient("");
 
 var receiverOptions = new ReceiverOptions
 {
