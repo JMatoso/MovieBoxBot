@@ -2,6 +2,8 @@
 using MovieBoxBot.Entities.Externals;
 using MovieBoxBot.Models;
 using MovieBoxBot.Utils.Client;
+using Pastel;
+using System.Drawing;
 
 namespace MovieBoxBot.Utils;
 
@@ -19,41 +21,50 @@ internal class Actions
 
     public static TextMessage Start(string name) => new()
     {
-        Text = $"Let's get started, {name}! Tell me what you want to do typing one of the commands I know."
+        Text = $"Hey, {name}! Tell me what you want to do typing one of the commands I know."
     };
 
     public static PhotoMessageModel List(int page, string queryTerm = "")
     {
-        var result = _httpClientService.GetAsync(string.Format(_baseUrl, page, queryTerm.Trim())).Result;
-
-        var photoMessageModel = new PhotoMessageModel()
+        try
         {
-            MoviesCount = result.Data.MovieCount,
-            Message = $"I've got {result.Data.MovieCount} movie(s) for you.\nPage: {page}",
-            Pages = (int)Math.Ceiling(Convert.ToDecimal(result.Data.MovieCount / result.Data.Limit))
-        };
+            var result = _httpClientService.GetAsync(string.Format(_baseUrl, page, queryTerm.Trim())).Result;            
 
-        UserActivity.ActualPage = page;
-        UserActivity.SearchKeyword = queryTerm.Trim();
+            UserActivity.ActualPage = page;
+            UserActivity.SearchKeyword = queryTerm.Trim();
 
-        if (result.Data.Movies is not null)
-        {
-            result.Data.Movies.ForEach((movie) =>
+            var photoMessageModel = new PhotoMessageModel()
             {
-                photoMessageModel.PhotoMessages.Add(new PhotoMessage()
+                MoviesCount = result.Data.MovieCount,
+                Message = $"I've got {result.Data.MovieCount} movie(s) for you.\nPage: {page}",
+                Pages = (int)Math.Ceiling(Convert.ToDecimal(result.Data.MovieCount / result.Data.Limit))
+            };
+
+            if (result.Data.Movies is not null)
+            {
+                result.Data.Movies.ForEach((movie) =>
                 {
-                    MovieId = movie.Id.ToString(),
-                    Photo = movie.MediumCoverImage,
-                    Caption = $"<b>{movie.TitleLong}</b>" +
-                        Environment.NewLine + GetStringCollection(movie.Genres) +
-                        Environment.NewLine + Environment.NewLine +
-                        (movie.DescriptionFull.Length > 250 ? movie.DescriptionFull[..250] : movie.DescriptionFull) + "..." +
-                        Environment.NewLine + Environment.NewLine + GetTorrents(movie.Torrents)
+                    photoMessageModel.PhotoMessages.Add(new PhotoMessage()
+                    {
+                        MovieId = movie.Id.ToString(),
+                        Photo = movie.MediumCoverImage,
+                        Caption = $"<b>{movie.TitleLong}</b>" +
+                            Environment.NewLine + GetStringCollection(movie.Genres) +
+                            Environment.NewLine + Environment.NewLine +
+                            (movie.DescriptionFull.Length > 250 ? movie.DescriptionFull[..250] : movie.DescriptionFull) + "..." +
+                            Environment.NewLine + Environment.NewLine + GetTorrents(movie.Torrents)
+                    });
                 });
-            });
+            }
+
+            return photoMessageModel;
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine("Server Error: {0}".Pastel(Color.Red), e.Message);
         }
 
-        return photoMessageModel;
+        return default!;
     }
 
     private static string GetTorrents(List<Torrent> torrents)

@@ -5,12 +5,14 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using System.Drawing;
+using Pastel;
 
 using var cancellationToken = new CancellationTokenSource();
 
 Console.WriteLine("Starting bot...");
 
-var botClient = new TelegramBotClient("");
+var botClient = new TelegramBotClient("<TelegramBotApiKey>");
 
 var receiverOptions = new ReceiverOptions
 {
@@ -26,7 +28,7 @@ botClient.StartReceiving(
 
 var me = await botClient.GetMeAsync();
 
-Console.WriteLine($"Listening for @{me.Username}");
+Console.WriteLine($"Listening for @{me.Username}".Pastel(Color.FromArgb(25, 135, 84)));
 Console.ReadLine();
 
 cancellationToken.Cancel();
@@ -64,6 +66,18 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 
             case "/list":
                 var movieList = Actions.List(UserActivity.ActualPage);
+
+                if(movieList is null)
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId, 
+                        text: "I have some occasional issues. I will be back shortly.", 
+                        replyToMessageId: message!.MessageId, 
+                        cancellationToken: cancellationToken);
+
+                    break;
+                }
+
                 await BotDataManagement.ProcessMessages(botClient, movieList, chatId, cancellationToken);
                 break;
 
@@ -91,10 +105,10 @@ Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, 
     var errorMessage = exception switch
     {
         ApiRequestException apiRequestException
-            => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+            => $"Telegram API Error: [{apiRequestException.ErrorCode}] | {apiRequestException.Message}",
         _ => exception.ToString()
     };
 
-    Console.WriteLine(errorMessage);
+    Console.WriteLine(errorMessage.Pastel(Color.Red));
     return Task.CompletedTask;
 }
