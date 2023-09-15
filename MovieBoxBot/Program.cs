@@ -109,6 +109,6 @@ Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, 
         _ => exception.ToString()
     };
 
-    Console.WriteLine(errorMessage.Pastel(Color.Red));
+    Console.WriteLine($"----\n{errorMessage.Pastel(Color.Red)}");
     return Task.CompletedTask;
 }

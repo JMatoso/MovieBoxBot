@@ -16,11 +16,11 @@ internal static class BotDataManagement
         if (string.IsNullOrEmpty(keyword))
         {
             await botClient.SendTextMessageAsync(
-                chatId: chatId,
-                text: "Give me a title.\n\n Try: /search <b>movie name</b>.", 
-                parseMode: ParseMode.Html, 
-                replyToMessageId: messageId, 
-                cancellationToken: cancellationToken);
+                                chatId: chatId,
+                                text: "Give me a title.\n\n Try: /search <b>movie name</b>.", 
+                                parseMode: ParseMode.Html, 
+                                replyToMessageId: messageId, 
+                                cancellationToken: cancellationToken);
 
             return;
         }
@@ -29,8 +29,19 @@ internal static class BotDataManagement
         await ProcessMessages(botClient, result, chatId, cancellationToken);
     }
 
-    public static async Task ProcessMessages(ITelegramBotClient botClient, PhotoMessageModel model, ChatId chatId, CancellationToken cancellationToken)
+    public static async Task ProcessMessages(ITelegramBotClient botClient, PhotoMessageModel? model, ChatId chatId, CancellationToken cancellationToken)
     {
+        if(model is null)
+        {
+            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "I couldn't fetch any data, try again later.",
+                                cancellationToken: cancellationToken
+            );
+
+            return;
+        }
+
         await botClient.SendTextMessageAsync(
                 chatId: chatId,
                 text: model.Message,
@@ -43,12 +54,12 @@ internal static class BotDataManagement
                 InlineKeyboardButton.WithUrl(text: "See on MovieBox", url: $"https://moviebox.site/movie?mid={message.MovieId}"));
 
             await botClient.SendPhotoAsync(
-                chatId: chatId,
-                photo: message.Photo!,
-                caption: message.Caption,
-                parseMode: message.ParseMode,
-                replyMarkup: inlineKeyboard,
-                cancellationToken: cancellationToken
+                                            chatId: chatId,
+                                            photo: message.Photo!,
+                                            caption: message.Caption,
+                                            parseMode: message.ParseMode,
+                                            replyMarkup: inlineKeyboard,
+                                            cancellationToken: cancellationToken
             );
         }
 
@@ -57,10 +68,10 @@ internal static class BotDataManagement
             UserActivity.HasNext = true;
 
             await botClient.SendTextMessageAsync(
-                chatId: chatId,
-                text: "See more in the /next page.",
-                parseMode: ParseMode.Html,
-                cancellationToken: cancellationToken
+                                chatId: chatId,
+                                text: "See more in the /next page.",
+                                parseMode: ParseMode.Html,
+                                cancellationToken: cancellationToken
             );
 
             return;
@@ -69,9 +80,9 @@ internal static class BotDataManagement
         UserActivity.HasNext = false;
 
         await botClient.SendTextMessageAsync(
-            chatId: chatId,
-            text: "That's all.",
-            cancellationToken: cancellationToken
+                            chatId: chatId,
+                            text: "That's all.",
+                            cancellationToken: cancellationToken
         );
     }
 
@@ -87,15 +98,15 @@ internal static class BotDataManagement
         }
 
         var message = string.IsNullOrEmpty(UserActivity.SearchKeyword) ?
-            "You didn't search anything." :
-            $"There aren't more results for <b>{UserActivity.SearchKeyword}</b>.";
+                            "You didn't search anything." :
+                            $"There aren't more results for <b>{UserActivity.SearchKeyword}</b>.";
 
         await botClient.SendTextMessageAsync(
-            chatId: chatId,
-            text: message,
-            parseMode: ParseMode.Html,
-            replyToMessageId: messageId,
-            cancellationToken: cancellationToken
+                            chatId: chatId,
+                            text: message,
+                            parseMode: ParseMode.Html,
+                            replyToMessageId: messageId,
+                            cancellationToken: cancellationToken
         );
     }
 }

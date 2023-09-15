@@ -24,11 +24,12 @@ internal class Actions
         Text = $"Hey, {name}! Tell me what you want to do typing one of the commands I know."
     };
 
-    public static PhotoMessageModel List(int page, string queryTerm = "")
+    public static PhotoMessageModel? List(int page, string queryTerm = "")
     {
         try
         {
-            var result = _httpClientService.GetAsync(string.Format(_baseUrl, page, queryTerm.Trim())).Result;            
+            var result = _httpClientService.GetAsync(string.Format(_baseUrl, page, queryTerm.Trim())).Result;     
+            if(result is null) return default;
 
             UserActivity.ActualPage = page;
             UserActivity.SearchKeyword = queryTerm.Trim();
@@ -40,31 +41,28 @@ internal class Actions
                 Pages = (int)Math.Ceiling(Convert.ToDecimal(result.Data.MovieCount / result.Data.Limit))
             };
 
-            if (result.Data.Movies is not null)
+            result.Data.Movies?.ForEach((movie) =>
             {
-                result.Data.Movies.ForEach((movie) =>
+                photoMessageModel.PhotoMessages.Add(new PhotoMessage()
                 {
-                    photoMessageModel.PhotoMessages.Add(new PhotoMessage()
-                    {
-                        MovieId = movie.Id.ToString(),
-                        Photo = movie.MediumCoverImage,
-                        Caption = $"<b>{movie.TitleLong}</b>" +
-                            Environment.NewLine + GetStringCollection(movie.Genres) +
-                            Environment.NewLine + Environment.NewLine +
-                            (movie.DescriptionFull.Length > 250 ? movie.DescriptionFull[..250] : movie.DescriptionFull) + "..." +
-                            Environment.NewLine + Environment.NewLine + GetTorrents(movie.Torrents)
-                    });
+                    MovieId = movie.Id.ToString(),
+                    Photo = movie.MediumCoverImage,
+                    Caption = $"<b>{movie.TitleLong}</b>" +
+                        Environment.NewLine + GetStringCollection(movie.Genres) +
+                        Environment.NewLine + Environment.NewLine +
+                        (movie.DescriptionFull.Length > 250 ? movie.DescriptionFull[..250] : movie.DescriptionFull) + "..." +
+                        Environment.NewLine + Environment.NewLine + GetTorrents(movie.Torrents)
                 });
-            }
+            });
 
             return photoMessageModel;
         }
         catch(Exception e)
         {
-            Console.WriteLine("Server Error: {0}".Pastel(Color.Red), e.Message);
+            Console.WriteLine("----\nServer Error: {0}".Pastel(Color.Red), e.Message);
         }
 
-        return default!;
+        return default;
     }
 
     private static string GetTorrents(List<Torrent> torrents)
